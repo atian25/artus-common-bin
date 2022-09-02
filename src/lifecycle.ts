@@ -1,6 +1,6 @@
 import yargs from 'yargs';
 import { Context, Next } from '@artus/pipeline';
-import { Inject, ApplicationLifecycle, LifecycleHook, LifecycleHookUnit, Container } from '@artus/core';
+import { Inject, ApplicationLifecycle, LifecycleHook, LifecycleHookUnit, Container, ExecutionContainer } from '@artus/core';
 import { COMMAND_METADATA, OPTION_METADATA, COMMAND_TAG } from './decorator';
 import { ProcessTrigger } from './trigger';
 
@@ -32,48 +32,34 @@ export default class Lifecycle implements ApplicationLifecycle {
         aliases: commandMetadata.alias,
         describe: commandMetadata.description,
         // TODO: Sub Command
-        builder: (yargs) => yargs.options(optionMetadata),
+        builder: optionMetadata,
         handler: async argv => {
-          const ctx = await this.trigger.initContext();
-          ctx.container.set({ id: 'argv', value: argv });
-          ctx.container.set({ id: 'command', value: commandClz });
-          await this.trigger.startPipeline(ctx);
+          const ctx = argv.ctx as Context;
+          delete argv.ctx;
+          const container = ctx.container;
+
+          container.set({ id: 'argv', value: argv });
+          // find command instance
+          // TODO: WHY ctx.container
+          const command = container.get<typeof commandClz>(commandClz);
+
+          // invoke command
+          await command.run(...argv._);
+
+          console.log(argv);
         }
       });
-
-      // yargs.alias(commandMetadata.command, commandMetadata.alias);
     }
 
     // process.argv -> parse argv -> fill global argv -> find command -> exec command handler
 
-    // this.trigger.use(async (ctx: Context, next: Next) => {
-    //   const argv = await yargs.parse(process.argv, { ctx });
-    //   await next();
-    // });
-
-    // this.trigger.use(async (ctx: Context, next: Next) => {
-    //   const { argv, commandClz } = ctx.container.get('globalOptions') as any;
-    //   // const originArgv = process.argv.slice(2);
-    //   // ctx.container.set({ id: 'originArgv', value: originArgv });
-    //   await next();
-    // });
-
-    this.trigger.use(async (ctx: Context) => {
-      const commandClz = ctx.container.get('command') as any;
-      const argv = ctx.container.get('argv') as any;
-      console.log('origin argv: %j', argv);
-
-      // find command instance
-      // TODO: WHY ctx.container
-      const command = ctx.container.get<typeof commandClz>(commandClz);
-
-      // invoke command
-      await command.run(...argv._);
+    this.trigger.use(async (ctx: Context, next: Next) => {
+      await yargs.parse(process.argv.slice(2), { ctx });
+      await next();
     });
 
-
-    // TODO: mv to trigger middwalre
-    await yargs.parse();
+    const ctx = await this.trigger.initContext();
+    await this.trigger.startPipeline(ctx);
 
   }
 }
