@@ -27,6 +27,11 @@ export class Program extends ArtusApplication {
     // this.trigger.
   }
 
+  async registry() {
+    // registry command
+    console.log('@@@', this.container.getInjectableByTag('COMMAND_TAG'))
+  }
+
   public static async start(options?: ApplicationOptions) {
     const app = new Program(options);
     await app.init();

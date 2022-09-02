@@ -59,7 +59,7 @@ export function CommandOption() {
 
 export function DefineOption() {
   return (target: any) => {
-    Inject('globalOptions')(target, HOLDER);
+    Inject('argv')(target, HOLDER);
     return Injectable({ scope: ScopeEnum.EXECUTION })(target);
   };
 }
@@ -74,7 +74,7 @@ export function Option(meta: OptionProps = {}) {
     Object.defineProperty(target, key, {
       enumerable: true,
       get: function () {
-        return this[HOLDER].argv[key];
+        return this[HOLDER][key];
       }
     })
   }

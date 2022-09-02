@@ -17,6 +17,8 @@ export default class Lifecycle implements ApplicationLifecycle {
 
   @LifecycleHook()
   public async willReady() {
+    // TODO: mv to program.ts
+
     // find all command class
     const commandList = this.globalContainer.getInjectableByTag(COMMAND_TAG);
 
@@ -33,7 +35,8 @@ export default class Lifecycle implements ApplicationLifecycle {
         builder: (yargs) => yargs.options(optionMetadata),
         handler: async argv => {
           const ctx = await this.trigger.initContext();
-          ctx.container.set({ id: 'globalOptions', value: { argv, commandClz } });
+          ctx.container.set({ id: 'argv', value: argv });
+          ctx.container.set({ id: 'command', value: commandClz });
           await this.trigger.startPipeline(ctx);
         }
       });
@@ -42,10 +45,9 @@ export default class Lifecycle implements ApplicationLifecycle {
     }
 
     // process.argv -> parse argv -> fill global argv -> find command -> exec command handler
+
     // this.trigger.use(async (ctx: Context, next: Next) => {
-    //   const originArgv = process.argv.slice(2);
-    //   ctx.container.set({ id: 'originArgv', value: originArgv });
-    //   ctx.container.set(originArgv, originArgv);
+    //   const argv = await yargs.parse(process.argv, { ctx });
     //   await next();
     // });
 
@@ -57,10 +59,12 @@ export default class Lifecycle implements ApplicationLifecycle {
     // });
 
     this.trigger.use(async (ctx: Context) => {
-      const { argv, commandClz } = ctx.container.get('globalOptions') as any;
+      const commandClz = ctx.container.get('command') as any;
+      const argv = ctx.container.get('argv') as any;
       console.log('origin argv: %j', argv);
 
       // find command instance
+      // TODO: WHY ctx.container
       const command = ctx.container.get<typeof commandClz>(commandClz);
 
       // invoke command
@@ -68,8 +72,8 @@ export default class Lifecycle implements ApplicationLifecycle {
     });
 
 
-    const a = await yargs.parse();
-    console.log('@', a);
+    // TODO: mv to trigger middwalre
+    await yargs.parse();
 
   }
 }
