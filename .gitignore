@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+*-lock*[.yaml, .json]
+**/*.js
+**/*.js.map
+**/*.d.ts
