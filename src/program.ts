@@ -1,4 +1,7 @@
 import { ArtusApplication, Scanner } from '@artus/core';
+import { Context, Next } from '@artus/pipeline';
+import yargs from 'yargs';
+import { COMMAND_METADATA, OPTION_METADATA, COMMAND_TAG } from './decorator';
 import { ProcessTrigger } from './trigger';
 
 interface ApplicationOptions {
@@ -8,7 +11,7 @@ interface ApplicationOptions {
 export class Program extends ArtusApplication {
   // @Inject()
   get trigger() {
-    return new ProcessTrigger();
+    return this.container.get(ProcessTrigger);
   }
 
   constructor(private readonly options?: ApplicationOptions) {
@@ -24,12 +27,53 @@ export class Program extends ArtusApplication {
     });
     const manifest = await scanner.scan(baseDir);
     await this.load(manifest.default, baseDir);
-    // this.trigger.
+    await this.registry();
   }
 
   async registry() {
-    // registry command
-    console.log('@@@', this.container.getInjectableByTag('COMMAND_TAG'))
+    // find all command class
+    const commandList = this.container.getInjectableByTag(COMMAND_TAG);
+
+    for (const commandClz of commandList) {
+      const commandMetadata = Reflect.getMetadata(COMMAND_METADATA, commandClz);
+      const optionMetadata = Reflect.getMetadata(OPTION_METADATA, commandClz);
+
+      // registry command
+      yargs.command({
+        command: commandMetadata.command,
+        aliases: commandMetadata.alias,
+        describe: commandMetadata.description,
+        // TODO: Sub Command
+        builder: optionMetadata,
+        handler: async argv => {
+          const ctx = argv.ctx as Context;
+          delete argv.ctx;
+
+          // get pipeline execution container
+          const container = ctx.container;
+          container.set({ id: 'argv', value: argv });
+
+          // get command instance
+          const command = container.get<typeof commandClz>(commandClz);
+
+          // invoke command
+          await command.run(...argv._);
+
+          console.log(argv);
+        }
+      });
+    }
+
+    // process.argv -> parse argv -> fill global argv -> find command -> exec command handler
+    this.trigger.use(async (ctx: Context, next: Next) => {
+      await yargs.parse(process.argv.slice(2), { ctx });
+      await next();
+    });
+
+    // start
+    // TODO: mv to program.ts
+    // const ctx = await this.trigger.initContext();
+    // await this.trigger.startPipeline(ctx);
   }
 
   public static async start(options?: ApplicationOptions) {
