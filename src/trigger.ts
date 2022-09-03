@@ -1,6 +1,7 @@
-import { Trigger, Injectable, ScopeEnum } from '@artus/core';
+import { Trigger, Injectable, ScopeEnum, DefineTrigger } from '@artus/core';
 import { Input, Output } from '@artus/pipeline';
 
+@DefineTrigger()
 @Injectable({ scope: ScopeEnum.SINGLETON })
 export class ProcessTrigger extends Trigger {
   constructor() {

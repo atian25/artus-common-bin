@@ -1,4 +1,4 @@
-import { ArtusApplication, Scanner } from '@artus/core';
+import { ArtusApplication, ArtusInjectEnum, Injectable, Scanner, ScopeEnum } from '@artus/core';
 import { Context, Next } from '@artus/pipeline';
 import yargs from 'yargs';
 import { COMMAND_METADATA, OPTION_METADATA, COMMAND_TAG } from './decorator';
@@ -8,8 +8,13 @@ interface ApplicationOptions {
   baseDir?: string;
 }
 
+@Injectable({
+  scope: ScopeEnum.SINGLETON,
+})
 export class Program extends ArtusApplication {
-  // @Inject()
+  // @Inject(ArtusInjectEnum.Trigger)
+  // trigger: ProcessTrigger;
+
   get trigger() {
     return this.container.get(ProcessTrigger);
   }
