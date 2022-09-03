@@ -1,7 +1,7 @@
-import { Command, CommandOption, DefineOption, Option, Flag, Inject, Injectable } from '../../../../src/index';
+import { Command, Argument, DefineArgument, Option, Flag, Positional, Inject, Injectable } from '../../../../src/index';
 
-@DefineOption()
-export class DevOption {
+@DefineArgument()
+export class DevArgument {
   @Option({
     description: 'numbers of app workers, default to 1 at local mode',
     type: 'number',
@@ -15,10 +15,13 @@ export class DevOption {
     // type: 'string',
   })
   framework: string;
+
+  @Positional()
+  baseDir: string;
 }
 
-@DefineOption()
-export class ExecArgvOption {
+@DefineArgument()
+export class ExecArgvArgument {
   @Flag({
     description: 'inject devtool',
   })
@@ -31,16 +34,17 @@ export class ExecArgvOption {
   alias: ['d'],
 })
 export class DevCommand {
-  @CommandOption()
-  argv: DevOption;
+  @Argument()
+  argv: DevArgument;
 
-  @CommandOption()
-  execArgv: ExecArgvOption;
+  @Argument()
+  execArgv: ExecArgvArgument;
 
   async run(args: string[]) {
     console.info('> args:', args);
     console.info('> worker:', this.argv.worker);
     console.info('> debug:', this.execArgv.debug);
+    console.info('> baseDir:', this.argv.baseDir);
     console.info('>', this.argv);
   }
 }

@@ -1,7 +1,7 @@
 import { ArtusApplication, ArtusInjectEnum, Injectable, Scanner, ScopeEnum } from '@artus/core';
 import { Context, Next } from '@artus/pipeline';
 import yargs from 'yargs';
-import { COMMAND_METADATA, OPTION_METADATA, COMMAND_TAG } from './decorator';
+import { COMMAND_METADATA, ARGUMENT_METADATA, COMMAND_TAG } from './decorator';
 import { ProcessTrigger } from './trigger';
 
 interface ApplicationOptions {
@@ -45,12 +45,12 @@ export class Program extends ArtusApplication {
 
     for (const commandClz of commandList) {
       const commandMetadata = Reflect.getMetadata(COMMAND_METADATA, commandClz);
-      const optionMetadata = Reflect.getMetadata(OPTION_METADATA, commandClz);
+      const optionMetadata = Reflect.getMetadata(ARGUMENT_METADATA, commandClz);
 
       this.instance = yargs();
       // registry command
       this.instance.command({
-        command: commandMetadata.command,
+        command: commandMetadata.command.trim(),
         aliases: commandMetadata.alias,
         describe: commandMetadata.description,
         // TODO: Sub Command

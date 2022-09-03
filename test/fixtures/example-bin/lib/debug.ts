@@ -1,8 +1,8 @@
-import { Command, CommandOption, DefineOption, Flag,  } from '../../../../src/index';
-import { DevCommand, ExecArgvOption } from './dev';
+import { Command, DefineArgument, Argument, Flag  } from '../../../../src/index';
+import { DevCommand, ExecArgvArgument } from './dev';
 
-@DefineOption()
-export class DebugOption extends ExecArgvOption {
+@DefineArgument()
+export class DebugArgument extends ExecArgvArgument {
   @Flag({
     description: 'inject devtool',
     default: true,
@@ -15,8 +15,8 @@ export class DebugOption extends ExecArgvOption {
   description: 'Run the development server at debug mode',
 })
 export class DebugCommand extends DevCommand {
-  @CommandOption()
-  execArgv: DebugOption;
+  @Argument()
+  execArgv: DebugArgument;
 
   async run(args: string[]) {
     console.info('> args:', args);
