@@ -25,55 +25,22 @@ export class ExecArgvOption {
   debug: boolean;
 }
 
-@DefineOption()
-export class OtherArgvOption extends DevOption {
-  @Flag({
-    description: 'inject devtool',
-  })
-  debug: boolean;
-}
-
 @Command({
   command: 'dev [baseDir]',
   description: 'Run the development server',
   alias: ['d'],
 })
-export default class DevCommand {
+export class DevCommand {
   @CommandOption()
   argv: DevOption;
 
   @CommandOption()
   execArgv: ExecArgvOption;
 
-  async run(...args: string[]) {
-    // this.argv.worker
-    // // this.worker
-    // argv.worker
-    // argv.framework
+  async run(args: string[]) {
     console.info('> args:', args);
     console.info('> worker:', this.argv.worker);
     console.info('> debug:', this.execArgv.debug);
-    console.info('>', this.argv);
-  }
-}
-
-@Command({
-  command: 'alidev [baseDir]',
-  description: 'Run the development server',
-  alias: ['d'],
-})
-export class AliDevCommand {
-  @CommandOption()
-  argv: OtherArgvOption;
-
-  async run(...args: string[]) {
-    // this.argv.worker
-    // // this.worker
-    // argv.worker
-    // argv.framework
-    console.info('> args:', args);
-    console.info('> worker:', this.argv.worker);
-    console.info('> debug:', this.argv.debug);
     console.info('>', this.argv);
   }
 }

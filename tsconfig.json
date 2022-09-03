@@ -1,14 +1,6 @@
 {
   "extends": "@artus/tsconfig",
-  "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
-  ],
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "rootDir": "src",
-    "outDir": "dist",
     "baseUrl": ".",
     "sourceMap": false,
     "inlineSourceMap": true,

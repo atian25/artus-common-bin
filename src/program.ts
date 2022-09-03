@@ -9,15 +9,18 @@ interface ApplicationOptions {
 }
 
 @Injectable({
+  id: ArtusInjectEnum.Application,
   scope: ScopeEnum.SINGLETON,
 })
 export class Program extends ArtusApplication {
   // @Inject(ArtusInjectEnum.Trigger)
   // trigger: ProcessTrigger;
 
-  get trigger() {
+  override get trigger(): ProcessTrigger {
     return this.container.get(ProcessTrigger);
   }
+
+  instance: yargs.Argv;
 
   constructor(private readonly options?: ApplicationOptions) {
     super();
@@ -39,18 +42,20 @@ export class Program extends ArtusApplication {
     // find all command class
     const commandList = this.container.getInjectableByTag(COMMAND_TAG);
 
+
     for (const commandClz of commandList) {
       const commandMetadata = Reflect.getMetadata(COMMAND_METADATA, commandClz);
       const optionMetadata = Reflect.getMetadata(OPTION_METADATA, commandClz);
 
+      this.instance = yargs();
       // registry command
-      yargs.command({
+      this.instance.command({
         command: commandMetadata.command,
         aliases: commandMetadata.alias,
         describe: commandMetadata.description,
         // TODO: Sub Command
         builder: optionMetadata,
-        handler: async argv => {
+        handler: async function(argv) {
           const ctx = argv.ctx as Context;
           delete argv.ctx;
 
@@ -62,16 +67,17 @@ export class Program extends ArtusApplication {
           const command = container.get<typeof commandClz>(commandClz);
 
           // invoke command
-          await command.run(...argv._);
-
-          console.log(argv);
+          // TODO: remove cmd
+          await command.run(argv._);
         }
       });
+
+      // console.log(instance.ge
     }
 
     // process.argv -> parse argv -> fill global argv -> find command -> exec command handler
     this.trigger.use(async (ctx: Context, next: Next) => {
-      await yargs.parse(process.argv.slice(2), { ctx });
+      await this.instance.parse(process.argv.slice(2), { ctx });
       await next();
     });
 

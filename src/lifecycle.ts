@@ -1,9 +1,9 @@
-import { Inject, ApplicationLifecycle, LifecycleHook, LifecycleHookUnit, Container } from '@artus/core';
+import { Inject, ApplicationLifecycle, LifecycleHook, LifecycleHookUnit, Container, ArtusInjectEnum } from '@artus/core';
 import { Program } from './program';
 
 @LifecycleHookUnit()
 export default class Lifecycle implements ApplicationLifecycle {
-  @Inject()
+  @Inject(ArtusInjectEnum.Application)
   private readonly program: Program;
 
   @Inject()
