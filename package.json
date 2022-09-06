@@ -2,16 +2,21 @@
   "name": "artus-common-bin",
   "version": "1.0.0",
   "description": "demo of common-bin base on artus",
+  "keywords": [
+    "command-line-app",
+    "cli",
+    "commander"
+  ],
   "author": "TZ <atian25@qq.com>",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
     "lint": "eslint .",
-    "test": "vitest",
-    "cov": "vitest run --coverage",
+    "test": "ts-mocha .",
+    "cov": "c8 npm test",
+    "ci": "npm run lint && npm run cov",
     "tsc": "tsc -p tsconfig.release.json",
-    "prepublishOnly": "rm -rf dist && tnpm run tsc",
-    "ci": "npm run lint && npm run cov"
+    "prepublishOnly": "rm -rf dist && tnpm run tsc"
   },
   "dependencies": {
     "@artus/core": "1.0.0-beta.23",
@@ -22,21 +27,22 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
-    "@artus/tsconfig": "^0.0.1",
+    "@artus/tsconfig": "1",
+    "@types/mocha": "^9.1.1",
     "@types/node": "^18.7.14",
     "@types/yargs": "^17.0.12",
-    "@vitest/coverage-c8": "^0.22.1",
+    "c8": "^7.12.0",
     "dirname-filename-esm": "^1.1.1",
+    "mocha": "^10.0.0",
+    "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.4.0",
-    "typescript": "^4.8.2",
-    "vitest": "^0.22.1"
+    "typescript": "^4.8.2"
   },
   "homepage": "https://github.com/atian25/artus-common-bin",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/atian25/artus-common-bin.git"
   },
-  "keywords": [],
   "license": "MIT"
 }
