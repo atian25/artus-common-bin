@@ -3,8 +3,7 @@ import { ArtusApplication, Scanner } from '@artus/core';
 
 export * from '@artus/core';
 export * from './program';
-export * from './application';
-export * from './decorator';
+export * from './command';
 
 interface ApplicationOptions {
   baseDir?: string;
